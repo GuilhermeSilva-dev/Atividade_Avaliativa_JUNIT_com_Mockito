@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sistema.mockito.exception.ErroAoSalvarPedidoException;
 import sistema.mockito.exception.EstoqueInsuficienteException;
 import sistema.mockito.exception.ProdutoNaoEncontradoException;
 import sistema.mockito.repository.PedidoRepository;
@@ -104,6 +105,31 @@ public class PedidoServiceTest {
                 .when(pedidoRepository).salvar(any(Pedido.class));
 
         Assertions.assertThrows(RuntimeException.class,
+                () -> service.criarPedido(1L, 2));
+    }
+
+    @Test
+    @DisplayName("Cenário C - Falha no ProdutoRepository não chama salvar()")
+    void naoDeveChamarSalvarQuandoProdutoRepositoryFalhar() {
+        when(produtoRepository.buscarPorId(1L)).thenThrow(new RuntimeException("Falha no banco"));
+
+        Assertions.assertThrows(RuntimeException.class,
+                () -> service.criarPedido(1L, 2));
+
+        verify(pedidoRepository, never()).salvar(any());
+    }
+
+    @Test
+    @DisplayName("Cenário D - Lança ErroAoSalvarPedidoException ao falhar salvamento")
+    void deveLancarErroAoSalvarPedidoExceptionQuandoFalhar() {
+        Produto produto = new Produto("Monitor", 800.00, 10);
+        when(produtoRepository.buscarPorId(1L)).thenReturn(produto);
+
+        doThrow(new RuntimeException("Falha na conexão"))
+                .when(pedidoRepository).salvar(any(Pedido.class));
+
+        // Aqui testamos a sua nova exception do Desafio!
+        Assertions.assertThrows(ErroAoSalvarPedidoException.class,
                 () -> service.criarPedido(1L, 2));
     }
 }
