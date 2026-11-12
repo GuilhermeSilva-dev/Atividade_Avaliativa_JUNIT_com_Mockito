@@ -1,4 +1,4 @@
-package sistema;
+package sistema.mockito;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sistema.mockito.Produto;
 import sistema.mockito.exception.ErroAoSalvarProdutoException;
 import sistema.mockito.exception.ProdutoNaoEncontradoException;
 import sistema.mockito.repository.ProdutoRepository;
@@ -16,25 +15,25 @@ import sistema.mockito.service.ProdutoService;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class) //[cite: 3, 6]
+@ExtendWith(MockitoExtension.class)
 public class ProdutoServiceTest {
 
-    @Mock //[cite: 3, 6]
+    @Mock
     private ProdutoRepository repository;
 
-    @InjectMocks //[cite: 3, 6]
+    @InjectMocks
     private ProdutoService service;
 
     @Test
     @DisplayName("CT01 - Produto válido é salvo e retornado")
     void deveSalvarProdutoValido() {
         Produto produto = new Produto("Mouse", 49.90, 10);
-        when(repository.salvar(produto)).thenReturn(produto); //[cite: 5]
+        when(repository.salvar(produto)).thenReturn(produto);
 
         Produto resultado = service.salvar(produto);
 
         Assertions.assertEquals("Mouse", resultado.getNome());
-        verify(repository).salvar(produto); //[cite: 5]
+        verify(repository).salvar(produto);
     }
 
     @Test
@@ -43,9 +42,9 @@ public class ProdutoServiceTest {
         Produto produto = new Produto("Teclado", -10.0, 5);
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> service.salvar(produto)); //[cite: 5]
+                () -> service.salvar(produto));
 
-        verify(repository, never()).salvar(any()); //[cite: 5]
+        verify(repository, never()).salvar(any());
     }
 
     @Test
@@ -108,7 +107,7 @@ public class ProdutoServiceTest {
     @DisplayName("CT08 - Buscar produto existente retorna o produto")
     void deveRetornarProdutoExistente() {
         Produto produto = new Produto("Mouse", 49.90, 10);
-        when(repository.buscarPorId(1L)).thenReturn(produto); //[cite: 5]
+        when(repository.buscarPorId(1L)).thenReturn(produto);
 
         Produto resultado = service.buscarPorId(1L);
 
@@ -119,12 +118,12 @@ public class ProdutoServiceTest {
     @Test
     @DisplayName("CT09 - Buscar produto inexistente lança exceção")
     void deveLancarExcecaoQuandoProdutoNaoEncontrado() {
-        when(repository.buscarPorId(99L)).thenReturn(null); //[cite: 7]
+        when(repository.buscarPorId(99L)).thenReturn(null);
 
         Assertions.assertThrows(ProdutoNaoEncontradoException.class,
-                () -> service.buscarPorId(99L)); //[cite: 7]
+                () -> service.buscarPorId(99L));
 
-        verify(repository).buscarPorId(99L); //[cite: 7]
+        verify(repository).buscarPorId(99L);
     }
 
     @Test
@@ -132,7 +131,7 @@ public class ProdutoServiceTest {
     void deveLancarErroQuandoRepositoryFalharAoSalvar() {
         Produto produto = new Produto("Teclado", 129.90, 5);
         doThrow(new RuntimeException("Falha na conexão"))
-                .when(repository).salvar(any(Produto.class)); //[cite: 5, 7]
+                .when(repository).salvar(any(Produto.class));
 
         Assertions.assertThrows(ErroAoSalvarProdutoException.class,
                 () -> service.salvar(produto));
